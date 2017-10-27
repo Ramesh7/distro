@@ -1,0 +1,14 @@
+[
+	{
+	  "deployment": "dev228",
+		"slave": "dev228dbrpt.int.coupadev.com",
+		"username": "sqlreadonly",
+		"password": "sqlreadonly"
+	},
+	{
+		"deployment": "dev369",
+		"slave": "dev369dbs.int.coupadev.com",
+		"username": "sqlreadonly",
+		"password": "sqlreadonly"
+	}
+]

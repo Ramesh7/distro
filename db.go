@@ -29,11 +29,11 @@ func connection(conf *Configuration, dbName string) (db *sql.DB, err error) {
 	return db, nil
 }
 
-func executeQuery(dbName string, query string) (rows string, err error) {
-  rows, err = db.Prepare(upgradeSelect)
-	if err != nil {
-		log.Error(fmt.Sprintf("Error creating statement dictionarySelect: %v", err))
-		return "", err
-	}
-	return result, err
-}
+// func executeQuery(dbName string, query string) (rows string, err error) {
+//   rows, err = db.Prepare(upgradeSelect)
+// 	if err != nil {
+// 		log.Error(fmt.Sprintf("Error creating statement dictionarySelect: %v", err))
+// 		return "", err
+// 	}
+// 	return result, err
+// }

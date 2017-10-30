@@ -6,21 +6,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func getHealth(c *gin.Context) {
-  c.JSON(http.StatusOK, gin.H{"status": "success"})
-}
-
-func getClusterList(*gin.Context) {
-  return func(c *gin.Context) {
-		deploymentList := []string{"lena", "austin", "foo"}
-    c.JSON(http.StatusCreated, deploymentList)
+func getHealth() func(*gin.Context) {
+	return func(c *gin.Context) {
+    c.JSON(http.StatusOK, gin.H{"status": "success"})
   }
 }
 
-func getQueryResult(c *gin.Context) {
+func getClusterList() func(*gin.Context) {
+	return func(c *gin.Context) {
+		clustertList := []string{"lena", "austin", "foo"}
+    c.JSON(http.StatusCreated, clustertList)
+  }
+}
+
+func getQueryResult() func(*gin.Context) {
   return func(c *gin.Context) {
-    deploymentList := c.PostForm("deployments")
-		query := c.PostForm("query")
+    // clustertList := c.PostForm("deployments")
+		// query := c.PostForm("query")
     c.JSON(http.StatusOK, gin.H{"status": "success"})
   }
 }

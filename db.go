@@ -1,7 +1,10 @@
 package main
 
 import (
+  "fmt"
   "database/sql"
+  "strconv"
+
   _ "github.com/go-sql-driver/mysql"
 )
 
@@ -24,4 +27,13 @@ func connection(conf *Configuration, dbName string) (db *sql.DB, err error) {
 	}
 	db.SetMaxOpenConns(maxOpenConnections)
 	return db, nil
+}
+
+func executeQuery(dbName string, query string) (rows string, err error) {
+  rows, err = db.Prepare(upgradeSelect)
+	if err != nil {
+		log.Error(fmt.Sprintf("Error creating statement dictionarySelect: %v", err))
+		return "", err
+	}
+	return result, err
 }

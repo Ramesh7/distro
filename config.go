@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 
-  "github.com/sirupsen/logrus"
+  "github.com/Sirupsen/logrus"
 )
 
 var (
@@ -36,7 +36,7 @@ func toJson(c interface{}) string {
     return string(bytes)
 }
 
-func loadConfig() []Cluster {
+func loadConfiguration() ([]Cluster, error) {
   fmt.Printf("Hello from loadConfig\n")
   flag.StringVar(&configPath, "c", configPath, "distro -c 'filePath'")
   flag.Parse()
@@ -56,5 +56,5 @@ func loadConfig() []Cluster {
 		fmt.Printf("Error loading %s: %v\n", configPath, err)
 		os.Exit(1)
 	}
-  return cluster
+  return cluster, nil
 }

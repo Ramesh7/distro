@@ -1,6 +1,7 @@
 package main
 
 import (
+  "flag"
   "encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -37,6 +38,8 @@ func toJson(c interface{}) string {
 
 func loadConfig() []Cluster {
   fmt.Printf("Hello from loadConfig\n")
+  flag.StringVar(&configPath, "c", configPath, "distro -c 'filePath'")
+  flag.Parse()
 
 	data, err := ioutil.ReadFile(configPath)
 

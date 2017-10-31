@@ -3,10 +3,21 @@ package main
 import (
 	"fmt"
 	"runtime"
+	"strings"
+	//"strconv"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
+
+var (
+	clusterList = loadDBConfiguration()
+)
+
+type InputParams struct {
+	InputClusterList []string
+	Query					  string
+}
 
 func getHealth() func(*gin.Context) {
 	return func(c *gin.Context) {
@@ -16,15 +27,31 @@ func getHealth() func(*gin.Context) {
 
 func getClusterList() func(*gin.Context) {
 	return func(c *gin.Context) {
-		clustertList := []string{"lena", "austin", "foo"}
-    c.JSON(http.StatusCreated, clustertList)
+    cluster := []string{}
+		for _, c := range clusterList {
+			cluster = append(cluster, c.Deployment)
+		}
+    c.JSON(http.StatusCreated, cluster)
   }
 }
 
 func getQueryResult() func(*gin.Context) {
   return func(c *gin.Context) {
-		clustertList := []string{"lena", "austin", "foo"}
-    c.JSON(http.StatusCreated, clustertList)
+		var inputParam InputParams
+		err := c.BindJSON(&inputParam)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, nil)
+			return
+		}
+
+		for _, cluster := range inputParam.InputClusterList {
+			log.Info("Input deployment : " + cluster)
+			// TODO : excute query
+			// 1. Get all schemas
+			// 2. fire query across all schemas
+		}
+
+    c.JSON(http.StatusCreated, clusterList)
   }
 }
 

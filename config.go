@@ -21,7 +21,7 @@ func toJson(c interface{}) string {
     return string(bytes)
 }
 
-func loadDBConfiguration() ([]Cluster, error) {
+func loadDBConfiguration() ([]Cluster) {
 
 	data, err := ioutil.ReadFile(dbConfigPath)
 
@@ -36,7 +36,7 @@ func loadDBConfiguration() ([]Cluster, error) {
 		log.Error("Error loading %s: %v", dbConfigPath, err)
 		os.Exit(1)
 	}
-  return cluster, nil
+  return cluster
 }
 
 func loadConfiguration(configPath string) (*Configuration, error) {

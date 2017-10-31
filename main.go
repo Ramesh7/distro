@@ -58,12 +58,6 @@ func airbrakeRecovery(airbrake *gobrake.Notifier) gin.HandlerFunc {
 
 func main() {
   log.Info("Starting from main method...")
-  log.Info("Loading DB configuration...")
-  clusterList, err := loadDBConfiguration()
-	if err != nil {
-		log.Error(fmt.Sprintf("Error loading configuration: %v", err))
-		return
-	}
 
   log.Info("Loading DB configuration...")
   conf, err := loadConfiguration(*configurationFlag)
@@ -94,9 +88,7 @@ func main() {
 	r.Use(newrelic.NewRelic(conf.NewRelicLicenseKey, conf.NewRelicApplicationName, verbose))
   r.Use(gin.Logger())
 	buildRoutes(r)
-	r.Run(":8080")
-
-  log.Info("End of program...")
+	r.Run(conf.BindAddress)
 }
 
 func buildRoutes(r *gin.Engine) {

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -37,21 +38,54 @@ func openDbConnection(conf *DbConfig, dbName string) (db *sql.DB, err error) {
 	return db, nil
 }
 
-func getDatabaseList(conf *DbConfig) (dbList []string, err error) {
-	db, err := openDbConnection(conf, "mysql")
+func getDatabaseList(conf DbConfig, cluster string) (dbList []string, err error) {
+	db, err := openDbConnection(&conf, "mysql")
 	if err != nil {
-		log.Error(fmt.Sprintf("Error opening database: %v", err))
-		return nil, err
+		log.Error("Unable to make connection for " + cluster + "cluster")
 	}
-	rows, err := db.Query("show databases" + conf.DbName)
+
+	rows, err := db.Query("SHOW DATABASES")
 	if err != nil {
 		log.Error(fmt.Sprintf("Error listing database: %v", err))
-		return dbList, nil
+		return nil, err
 	}
-	columns, _ := rows.Columns()
-	log.Info("---------")
-	log.Info(reflect.TypeOf(columns))
-	log.Info("---------")
-	// log.Info("Return of all db list  : " + lists)
-	return dbList, err
+	defer rows.Close()
+
+	for rows.Next() {
+		var Database string
+		rows.Scan(&Database)
+		matched, _ := regexp.MatchString("^mysql$|^test$|^information_schema$|^performance_schema$|^sys$|^sftp$|^klosetd$|^resque_shepherd$|^shasta$|^percona$", Database)
+		if matched {
+			continue
+		}
+		dbList = append(dbList, Database)
+	}
+	return dbList, nil
+}
+
+func getQueryResult(conf DbConfig, query string, dbName string, cluster string) (result [][]string, err error) {
+	db, err := openDbConnection(&conf, dbName)
+	if err != nil {
+		log.Error("Unable to make connection for " + cluster + "cluster")
+		return result, err
+	}
+
+	rows, err := db.Query(query)
+	defer rows.Close()
+	if err != nil {
+		return result, err
+	}
+
+	log.Info(reflect.TypeOf(rows))
+	columnNames, err := rows.Columns()
+	if err != nil {
+		return result, err
+	}
+
+	log.Info(reflect.TypeOf(columnNames))
+	//columns, err := rows.Columns()
+	//readCols := make([]interface{}, len(columns))
+	log.Info("============")
+	//og.Info(reflect.TypeOf(readCols))
+	return result, err
 }

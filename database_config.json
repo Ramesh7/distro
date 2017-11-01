@@ -1,7 +1,7 @@
 [
 	{
-    "deployment": "dev228",
-		"dsn": "sqlreadonly:3QeQY5QsxVtiLVZv@tcp(dev228dbs.int.coupadev.com:3306)/"
+        "deployment": "dev228",
+		"dsn": "root@/"
 	},
 	{
 		"deployment": "dev369",

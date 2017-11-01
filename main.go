@@ -20,7 +20,6 @@ var (
 	dbConfigPath      = "./database_config.json"
 	configurationFlag = flag.String("configuration-path", "conf.json", "Loads configuration file")
 	maxStackTraceSize = 4096
-	listDatabases     = "show databases"
 	log               = logrus.New()
 )
 
@@ -95,6 +94,6 @@ func buildRoutes(r *gin.Engine) {
 	{
 		v1.GET("/clusters", getClusterList())
 		v1.GET("/health", getHealth())
-		v1.GET("/query/download", getQueryResult())
+		v1.GET("/query/download", getResult())
 	}
 }

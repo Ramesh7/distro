@@ -1,9 +1,11 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"runtime"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	// "github.com/joho/sqltocsv"
@@ -11,6 +13,7 @@ import (
 
 var (
 	clusterList = loadDBConfiguration()
+	DBCon       *sql.DB
 )
 
 type InputParams struct {
@@ -34,7 +37,7 @@ func getClusterList() func(*gin.Context) {
 	}
 }
 
-func getQueryResult() func(*gin.Context) {
+func getResult() func(*gin.Context) {
 	return func(c *gin.Context) {
 		var inputParam InputParams
 		err := c.BindJSON(&inputParam)
@@ -50,19 +53,25 @@ func getQueryResult() func(*gin.Context) {
 			}
 
 			var dbConfig DbConfig
-			log.Info("DSN string : " + clusterInfo.Dsn)
 			dbConfig.Dsn = clusterInfo.Dsn
-			dbConfig.DbName = "mysql"
 			dbConfig.MaxIdleConnections = "10"
 			dbConfig.MaxOpenConnections = "128"
-			// getting list of databases
-			_, _ = getDatabaseList(&dbConfig)
-			log.Info("end of call")
 
-			// TODO : excute query
-			// 1. build DB connection
-			// 2. Get all schemas
-			// 3. fire query across all schemas
+			dbList, err := getDatabaseList(dbConfig, cluster)
+
+			if err != nil {
+				log.Error("Unable to get database list for " + cluster + "cluster")
+				continue
+			}
+			log.Info(strings.Join(dbList, ","))
+			for _, d := range dbList {
+				_, err := getQueryResult(dbConfig, inputParam.Query, d, cluster)
+				if err != nil {
+					log.Error("Unable to get result for " + d + " database")
+					log.Error(err)
+					continue
+				}
+			}
 		}
 
 		c.JSON(http.StatusCreated, clusterList)

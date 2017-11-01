@@ -1,27 +1,27 @@
 package main
 
 import (
-  "fmt"
-  "encoding/json"
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 )
 
 func (c Cluster) toString() string {
-    return toJson(c)
+	return toJson(c)
 }
 
 func toJson(c interface{}) string {
-    bytes, err := json.Marshal(c)
-    if err != nil {
-        log.Error(err.Error())
-        os.Exit(1)
-    }
+	bytes, err := json.Marshal(c)
+	if err != nil {
+		log.Error(err.Error())
+		os.Exit(1)
+	}
 
-    return string(bytes)
+	return string(bytes)
 }
 
-func loadDBConfiguration() ([]Cluster) {
+func loadDBConfiguration() []Cluster {
 
 	data, err := ioutil.ReadFile(dbConfigPath)
 
@@ -30,13 +30,13 @@ func loadDBConfiguration() ([]Cluster) {
 		os.Exit(1)
 	}
 
-  var cluster []Cluster
-  err = json.Unmarshal(data, &cluster)
+	var cluster []Cluster
+	err = json.Unmarshal(data, &cluster)
 	if err != nil {
 		log.Error("Error loading %s: %v", dbConfigPath, err)
 		os.Exit(1)
 	}
-  return cluster
+	return cluster
 }
 
 func loadConfiguration(configPath string) (*Configuration, error) {

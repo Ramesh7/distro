@@ -1,15 +1,15 @@
 package main
 
 import (
-  "fmt"
-  "flag"
-  "strconv"
-  "errors"
+	"errors"
+	"flag"
+	"fmt"
+	"strconv"
 
-  "github.com/gin-gonic/gin"
-  "github.com/airbrake/gobrake"
-  "github.com/gin-gonic/contrib/newrelic"
-  "github.com/Sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
+	"github.com/airbrake/gobrake"
+	"github.com/gin-gonic/contrib/newrelic"
+	"github.com/gin-gonic/gin"
 )
 
 func init() {
@@ -17,17 +17,16 @@ func init() {
 }
 
 var (
-  dbConfigPath = "./database_config.json"
-  configurationFlag = flag.String("configuration-path", "conf.json", "Loads configuration file")
-  maxStackTraceSize = 4096
-  log = logrus.New()
+	dbConfigPath      = "./database_config.json"
+	configurationFlag = flag.String("configuration-path", "conf.json", "Loads configuration file")
+	maxStackTraceSize = 4096
+	listDatabases     = "show databases"
+	log               = logrus.New()
 )
 
 type Cluster struct {
-    Deployment string `json:"deployment"`
-    Slave      string `json:"slave"`
-    Username   string `json:"username"`
-    Password   string `json:"password"`
+	Deployment string `json:"deployment"`
+	Dsn        string `json:"dsn"`
 }
 
 type Configuration struct {
@@ -57,10 +56,10 @@ func airbrakeRecovery(airbrake *gobrake.Notifier) gin.HandlerFunc {
 }
 
 func main() {
-  log.Info("Starting from main method...")
+	log.Info("Starting from main method...")
 
-  log.Info("Loading DB configuration...")
-  conf, err := loadConfiguration(*configurationFlag)
+	log.Info("Loading DB configuration...")
+	conf, err := loadConfiguration(*configurationFlag)
 	if err != nil {
 		log.Error(fmt.Sprintf("Error loading configuration: %v", err))
 		return
@@ -77,16 +76,16 @@ func main() {
 	}
 	airbrake = gobrake.NewNotifier(airbrakeProjectID, conf.AirbrakeProjectKey)
 
-  for _, cluster := range clusterList {
-    log.Info(cluster.Deployment)
-  }
+	for _, cluster := range clusterList {
+		log.Info(cluster.Deployment)
+	}
 
-  airbrake = gobrake.NewNotifier(airbrakeProjectID, conf.AirbrakeProjectKey)
+	airbrake = gobrake.NewNotifier(airbrakeProjectID, conf.AirbrakeProjectKey)
 
-  r := gin.New()
-  r.Use(airbrakeRecovery(airbrake)) // Use airbrakeRecovery as early as possible
+	r := gin.New()
+	r.Use(airbrakeRecovery(airbrake)) // Use airbrakeRecovery as early as possible
 	r.Use(newrelic.NewRelic(conf.NewRelicLicenseKey, conf.NewRelicApplicationName, verbose))
-  r.Use(gin.Logger())
+	r.Use(gin.Logger())
 	buildRoutes(r)
 	r.Run(conf.BindAddress)
 }
@@ -94,8 +93,8 @@ func main() {
 func buildRoutes(r *gin.Engine) {
 	v1 := r.Group("/v1")
 	{
-    v1.GET("/clusters", getClusterList())
-    v1.GET("/health", getHealth())
-    v1.GET("/query/download", getQueryResult())
+		v1.GET("/clusters", getClusterList())
+		v1.GET("/health", getHealth())
+		v1.GET("/query/download", getQueryResult())
 	}
 }

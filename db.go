@@ -1,14 +1,22 @@
 package main
 
 import (
-  "fmt"
-  "database/sql"
-  "strconv"
+	"database/sql"
+	"fmt"
+	"reflect"
+	"strconv"
 
-  _ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
-func connection(conf *Configuration, dbName string) (db *sql.DB, err error) {
+type DbConfig struct {
+	Dsn                string
+	DbName             string
+	MaxOpenConnections string
+	MaxIdleConnections string
+}
+
+func openDbConnection(conf *DbConfig, dbName string) (db *sql.DB, err error) {
 	db, err = sql.Open("mysql", conf.Dsn+dbName)
 	if err != nil {
 		log.Error(fmt.Sprintf("Error opening mysql connection: %v", err))
@@ -29,11 +37,21 @@ func connection(conf *Configuration, dbName string) (db *sql.DB, err error) {
 	return db, nil
 }
 
-// func executeQuery(dbName string, query string) (rows string, err error) {
-//   rows, err = db.Prepare(upgradeSelect)
-// 	if err != nil {
-// 		log.Error(fmt.Sprintf("Error creating statement dictionarySelect: %v", err))
-// 		return "", err
-// 	}
-// 	return result, err
-// }
+func getDatabaseList(conf *DbConfig) (dbList []string, err error) {
+	db, err := openDbConnection(conf, "mysql")
+	if err != nil {
+		log.Error(fmt.Sprintf("Error opening database: %v", err))
+		return nil, err
+	}
+	rows, err := db.Query("show databases" + conf.DbName)
+	if err != nil {
+		log.Error(fmt.Sprintf("Error listing database: %v", err))
+		return dbList, nil
+	}
+	columns, _ := rows.Columns()
+	log.Info("---------")
+	log.Info(reflect.TypeOf(columns))
+	log.Info("---------")
+	// log.Info("Return of all db list  : " + lists)
+	return dbList, err
+}

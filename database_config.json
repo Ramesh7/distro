@@ -1,14 +1,10 @@
 [
 	{
-	  "deployment": "dev228",
-		"slave": "dev228dbrpt.int.coupadev.com",
-		"username": "sqlreadonly",
-		"password": "sqlreadonly"
+    "deployment": "dev228",
+		"dsn": "sqlreadonly:3QeQY5QsxVtiLVZv@tcp(dev228dbs.int.coupadev.com:3306)/"
 	},
 	{
 		"deployment": "dev369",
-		"slave": "dev369dbs.int.coupadev.com",
-		"username": "sqlreadonly",
-		"password": "sqlreadonly"
+		"dsn": "sqlreadonly:E8XY64ujeaV0uTzmiOIqbSkXwcWeM7cS1WVMg6KxmKZ5c05vJh@tcp(dev228dbs.int.coupadev.com:3306)/"
 	}
 ]

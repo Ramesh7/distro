@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	"runtime"
-	"strings"
-	//"strconv"
 	"net/http"
+	"runtime"
 
 	"github.com/gin-gonic/gin"
+	// "github.com/joho/sqltocsv"
 )
 
 var (
@@ -16,43 +15,58 @@ var (
 
 type InputParams struct {
 	InputClusterList []string
-	Query					  string
+	Query            string
 }
 
 func getHealth() func(*gin.Context) {
 	return func(c *gin.Context) {
-    c.JSON(http.StatusOK, gin.H{"status": "success"})
-  }
+		c.JSON(http.StatusOK, gin.H{"status": "success"})
+	}
 }
 
 func getClusterList() func(*gin.Context) {
 	return func(c *gin.Context) {
-    cluster := []string{}
+		cluster := []string{}
 		for _, c := range clusterList {
 			cluster = append(cluster, c.Deployment)
 		}
-    c.JSON(http.StatusCreated, cluster)
-  }
+		c.JSON(http.StatusCreated, cluster)
+	}
 }
 
 func getQueryResult() func(*gin.Context) {
-  return func(c *gin.Context) {
+	return func(c *gin.Context) {
 		var inputParam InputParams
 		err := c.BindJSON(&inputParam)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, nil)
 			return
 		}
-
 		for _, cluster := range inputParam.InputClusterList {
-			log.Info("Input deployment : " + cluster)
+			clusterInfo := getClusterInfo(cluster)
+			if (Cluster{}) == clusterInfo {
+				fmt.Println("Cluster " + cluster + " information is missing in config")
+				continue
+			}
+
+			var dbConfig DbConfig
+			log.Info("DSN string : " + clusterInfo.Dsn)
+			dbConfig.Dsn = clusterInfo.Dsn
+			dbConfig.DbName = "mysql"
+			dbConfig.MaxIdleConnections = "10"
+			dbConfig.MaxOpenConnections = "128"
+			// getting list of databases
+			_, _ = getDatabaseList(&dbConfig)
+			log.Info("end of call")
+
 			// TODO : excute query
-			// 1. Get all schemas
-			// 2. fire query across all schemas
+			// 1. build DB connection
+			// 2. Get all schemas
+			// 3. fire query across all schemas
 		}
 
-    c.JSON(http.StatusCreated, clusterList)
-  }
+		c.JSON(http.StatusCreated, clusterList)
+	}
 }
 
 func ginErrorHandler(message string, err error, c *gin.Context, printStack bool, sendAirbrake bool) {
@@ -68,4 +82,14 @@ func ginErrorHandler(message string, err error, c *gin.Context, printStack bool,
 		defer airbrake.Flush()
 	}
 	c.AbortWithError(http.StatusInternalServerError, err)
+}
+
+func getClusterInfo(name string) Cluster {
+	var cluster Cluster
+	for _, c := range clusterList {
+		if c.Deployment == name {
+			cluster = c
+		}
+	}
+	return cluster
 }

@@ -5,6 +5,6 @@
 	},
 	{
 		"deployment": "dev369",
-		"dsn": "sqlreadonly:E8XY64ujeaV0uTzmiOIqbSkXwcWeM7cS1WVMg6KxmKZ5c05vJh@tcp(dev228dbs.int.coupadev.com:3306)/"
+		"dsn": "username:XXXXXXXXXXXX@tcp(example.com:3306)/"
 	}
 ]
